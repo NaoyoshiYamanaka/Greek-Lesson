@@ -41,8 +41,35 @@
   /* Header */
   header { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); background: var(--card);
     position: sticky; top: 0; z-index: 10; padding-top: calc(14px + env(safe-area-inset-top)); }
+  .header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .header-title { flex: 1; min-width: 0; }
   header h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent); }
   header .sub { font-size: 11px; color: var(--ink-3); margin-top: 2px; letter-spacing: 0.2px; }
+  .resources-btn { background: var(--accent); color: white; border: none; border-radius: 6px;
+    padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    min-height: 36px; display: flex; align-items: center; gap: 4px; letter-spacing: 0.3px; }
+  .resources-btn:active { opacity: 0.85; }
+
+  /* Resources modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+  .modal { background: var(--card); border-radius: 8px; max-width: 480px; width: 100%;
+    max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+  .modal-header { padding: 16px 18px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h2 { margin: 0; font-size: 16px; color: var(--accent); font-weight: 700; }
+  .modal-close { background: none; border: none; font-size: 22px; color: var(--ink-3);
+    padding: 4px 8px; cursor: pointer; line-height: 1; }
+  .modal-body { padding: 12px 14px 18px; }
+  .resource-item { display: block; padding: 14px 14px; border: 1px solid var(--line);
+    border-radius: 6px; margin-bottom: 10px; text-decoration: none; color: var(--ink);
+    background: white; transition: background 0.15s; }
+  .resource-item:active { background: var(--accent-soft); }
+  .resource-item .r-title { font-size: 14px; font-weight: 600; color: var(--accent);
+    display: flex; align-items: center; gap: 8px; }
+  .resource-item .r-meta { font-size: 11px; color: var(--ink-3); margin-top: 4px; padding-left: 26px; }
+  .resource-item .r-note { font-size: 12px; color: var(--ink-2); margin-top: 6px; padding-left: 26px; line-height: 1.5; }
 
   /* Main container */
   main { max-width: 720px; margin: 0 auto; padding: 16px; }
@@ -192,9 +219,17 @@
 </head>
 <body>
 <header>
-  <h1>Κοινή Drill</h1>
-  <div class="sub">聖書ギリシア語 習熟ドリル</div>
+  <div class="header-row">
+    <div class="header-title">
+      <h1>Κοινή Drill</h1>
+      <div class="sub">聖書ギリシア語 習熟ドリル</div>
+    </div>
+    <button class="resources-btn" id="resources-btn" aria-label="資料を開く">
+      <span style="font-size:14px">📖</span><span>資料</span>
+    </button>
+  </div>
 </header>
+<div id="modal-root"></div>
 
 <main id="app">
   <!-- Screens are swapped in by JS -->

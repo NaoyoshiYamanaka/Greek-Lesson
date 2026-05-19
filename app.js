@@ -101,6 +101,91 @@
     return (g && g.trim()) ? g : null;
   }
 
+  // ---------- Resources modal ----------
+  const RESOURCES = [
+    {
+      title: "ギリシア語パラダイム ダッシュボード",
+      file: "docs/Greek_Paradigm_Dashboard.pdf",
+      pages: 7,
+      note: "主要パラダイムを俯瞰する一覧資料",
+    },
+    {
+      title: "Biblical Greek Decoded",
+      file: "docs/Biblical_Greek_Decoded.pdf",
+      pages: 21,
+      note: "聖書ギリシア語のしくみ解説",
+    },
+    {
+      title: "Cowork 制作・パラダイム講義",
+      file: "docs/Cowork_Paradigm_Lecture.pdf",
+      pages: 36,
+      note: "規則名詞・規則動詞（λύω）のスライド資料",
+    },
+  ];
+
+  function openResources() {
+    const root = document.getElementById("modal-root");
+    if (!root) return;
+    root.innerHTML = "";
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeResources(); });
+    const modal = document.createElement("div");
+    modal.className = "modal";
+    const header = document.createElement("div");
+    header.className = "modal-header";
+    const h2 = document.createElement("h2");
+    h2.textContent = "📖 資料";
+    const close = document.createElement("button");
+    close.className = "modal-close";
+    close.setAttribute("aria-label", "閉じる");
+    close.textContent = "✕";
+    close.addEventListener("click", closeResources);
+    header.appendChild(h2);
+    header.appendChild(close);
+    modal.appendChild(header);
+    const body = document.createElement("div");
+    body.className = "modal-body";
+    for (const r of RESOURCES) {
+      const a = document.createElement("a");
+      a.className = "resource-item";
+      a.href = r.file;
+      a.target = "_blank";
+      a.rel = "noopener";
+      const title = document.createElement("div");
+      title.className = "r-title";
+      title.innerHTML = `<span style="font-size:18px">📄</span><span>${r.title}</span>`;
+      const meta = document.createElement("div");
+      meta.className = "r-meta";
+      meta.textContent = `PDF ・ ${r.pages} ページ`;
+      const note = document.createElement("div");
+      note.className = "r-note";
+      note.textContent = r.note;
+      a.appendChild(title);
+      a.appendChild(meta);
+      a.appendChild(note);
+      a.addEventListener("click", () => setTimeout(closeResources, 100));
+      body.appendChild(a);
+    }
+    modal.appendChild(body);
+    overlay.appendChild(modal);
+    root.appendChild(overlay);
+  }
+
+  function closeResources() {
+    const root = document.getElementById("modal-root");
+    if (root) root.innerHTML = "";
+  }
+
+  // Wire up the header button (it exists in the static HTML)
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("resources-btn");
+    if (btn) btn.addEventListener("click", openResources);
+  });
+  // Also handle the case where DOMContentLoaded already fired (since this script runs at end of body)
+  const _existingBtn = document.getElementById("resources-btn");
+  if (_existingBtn) _existingBtn.addEventListener("click", openResources);
+
   function filterQuestions() {
     const f = state.filter;
     return QUESTIONS.filter(q => {
