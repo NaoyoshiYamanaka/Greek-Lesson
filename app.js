@@ -147,11 +147,11 @@
     const body = document.createElement("div");
     body.className = "modal-body";
     for (const r of RESOURCES) {
-      const a = document.createElement("a");
-      a.className = "resource-item";
-      a.href = r.file;
-      a.target = "_blank";
-      a.rel = "noopener";
+      const item = document.createElement("button");
+      item.className = "resource-item";
+      item.style.textAlign = "left";
+      item.style.width = "100%";
+      item.style.cursor = "pointer";
       const title = document.createElement("div");
       title.className = "r-title";
       title.innerHTML = `<span style="font-size:18px">📄</span><span>${r.title}</span>`;
@@ -161,11 +161,14 @@
       const note = document.createElement("div");
       note.className = "r-note";
       note.textContent = r.note;
-      a.appendChild(title);
-      a.appendChild(meta);
-      a.appendChild(note);
-      a.addEventListener("click", () => setTimeout(closeResources, 100));
-      body.appendChild(a);
+      item.appendChild(title);
+      item.appendChild(meta);
+      item.appendChild(note);
+      item.addEventListener("click", () => {
+        closeResources();
+        openPdfViewer(r.file, r.title);
+      });
+      body.appendChild(item);
     }
     modal.appendChild(body);
     overlay.appendChild(modal);
@@ -175,6 +178,40 @@
   function closeResources() {
     const root = document.getElementById("modal-root");
     if (root) root.innerHTML = "";
+  }
+
+  function openPdfViewer(pdfUrl, title) {
+    const root = document.getElementById("modal-root");
+    if (!root) return;
+    root.innerHTML = "";
+    const overlay = document.createElement("div");
+    overlay.className = "pdf-viewer-overlay";
+    const header = document.createElement("div");
+    header.className = "pdf-viewer-header";
+    const titleEl = document.createElement("div");
+    titleEl.className = "pdf-viewer-title";
+    titleEl.textContent = title;
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "pdf-viewer-close";
+    closeBtn.textContent = "✕ 閉じる";
+    closeBtn.addEventListener("click", closePdfViewer);
+    header.appendChild(titleEl);
+    header.appendChild(closeBtn);
+    const iframe = document.createElement("iframe");
+    iframe.src = pdfUrl;
+    iframe.className = "pdf-viewer-frame";
+    iframe.setAttribute("allow", "fullscreen");
+    overlay.appendChild(header);
+    overlay.appendChild(iframe);
+    root.appendChild(overlay);
+    // Lock body scroll while viewer is open
+    document.body.style.overflow = "hidden";
+  }
+
+  function closePdfViewer() {
+    const root = document.getElementById("modal-root");
+    if (root) root.innerHTML = "";
+    document.body.style.overflow = "";
   }
 
   // Wire up the header button (it exists in the static HTML)
