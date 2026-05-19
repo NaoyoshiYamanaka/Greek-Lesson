@@ -102,26 +102,33 @@
   }
 
   // ---------- Resources modal ----------
+  // Pages are pre-rendered as JPEG images for reliable iOS in-app viewing.
+  // Naming: docs/<slug>_pages/p-N.jpg (no padding if pages<10, 2-digit padding if pages>=10)
   const RESOURCES = [
     {
       title: "ギリシア語パラダイム ダッシュボード",
-      file: "docs/Greek_Paradigm_Dashboard.pdf",
+      slug: "Greek_Paradigm_Dashboard",
       pages: 7,
       note: "主要パラダイムを俯瞰する一覧資料",
     },
     {
       title: "Biblical Greek Decoded",
-      file: "docs/Biblical_Greek_Decoded.pdf",
+      slug: "Biblical_Greek_Decoded",
       pages: 21,
       note: "聖書ギリシア語のしくみ解説",
     },
     {
       title: "Cowork 制作・パラダイム講義",
-      file: "docs/Cowork_Paradigm_Lecture.pdf",
+      slug: "Cowork_Paradigm_Lecture",
       pages: 36,
       note: "規則名詞・規則動詞（λύω）のスライド資料",
     },
   ];
+
+  function pageImageUrl(slug, pageNum, totalPages) {
+    const padded = totalPages >= 10 ? String(pageNum).padStart(2, "0") : String(pageNum);
+    return `docs/${slug}_pages/p-${padded}.jpg`;
+  }
 
   function openResources() {
     const root = document.getElementById("modal-root");
@@ -166,7 +173,7 @@
       item.appendChild(note);
       item.addEventListener("click", () => {
         closeResources();
-        openPdfViewer(r.file, r.title);
+        openPdfViewer(r, r.title);
       });
       body.appendChild(item);
     }
@@ -180,7 +187,7 @@
     if (root) root.innerHTML = "";
   }
 
-  function openPdfViewer(pdfUrl, title) {
+  function openPdfViewer(resource, title) {
     const root = document.getElementById("modal-root");
     if (!root) return;
     root.innerHTML = "";
@@ -191,21 +198,58 @@
     const titleEl = document.createElement("div");
     titleEl.className = "pdf-viewer-title";
     titleEl.textContent = title;
+    const pageEl = document.createElement("div");
+    pageEl.className = "pdf-viewer-pageinfo";
+    pageEl.textContent = `1 / ${resource.pages}`;
     const closeBtn = document.createElement("button");
     closeBtn.className = "pdf-viewer-close";
     closeBtn.textContent = "✕ 閉じる";
     closeBtn.addEventListener("click", closePdfViewer);
     header.appendChild(titleEl);
+    header.appendChild(pageEl);
     header.appendChild(closeBtn);
-    const iframe = document.createElement("iframe");
-    iframe.src = pdfUrl;
-    iframe.className = "pdf-viewer-frame";
-    iframe.setAttribute("allow", "fullscreen");
+
+    const scroll = document.createElement("div");
+    scroll.className = "pdf-viewer-frame";
+    const gallery = document.createElement("div");
+    gallery.className = "page-gallery";
+    for (let i = 1; i <= resource.pages; i++) {
+      const wrap = document.createElement("div");
+      wrap.className = "page-card";
+      wrap.dataset.pageNum = String(i);
+      const img = document.createElement("img");
+      img.src = pageImageUrl(resource.slug, i, resource.pages);
+      img.alt = `${title} — p.${i}`;
+      img.loading = i <= 2 ? "eager" : "lazy";
+      const label = document.createElement("div");
+      label.className = "page-num";
+      label.textContent = `p. ${i}`;
+      wrap.appendChild(img);
+      wrap.appendChild(label);
+      gallery.appendChild(wrap);
+    }
+    scroll.appendChild(gallery);
+
     overlay.appendChild(header);
-    overlay.appendChild(iframe);
+    overlay.appendChild(scroll);
     root.appendChild(overlay);
-    // Lock body scroll while viewer is open
     document.body.style.overflow = "hidden";
+
+    // Update page indicator on scroll
+    let frame = null;
+    scroll.addEventListener("scroll", () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const cards = gallery.querySelectorAll(".page-card");
+        const top = scroll.scrollTop + scroll.clientHeight * 0.3;
+        let current = 1;
+        for (const card of cards) {
+          if (card.offsetTop <= top) current = parseInt(card.dataset.pageNum, 10);
+          else break;
+        }
+        pageEl.textContent = `${current} / ${resource.pages}`;
+      });
+    });
   }
 
   function closePdfViewer() {
