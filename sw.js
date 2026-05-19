@@ -1,5 +1,5 @@
 /* Service Worker for Κοινή Drill — offline-first */
-const CACHE_VERSION = "koine-drill-v0.5.0";
+const CACHE_VERSION = "koine-drill-v0.6.0";
 const ASSETS = [
   "./",
   "./index.html",
